@@ -1,6 +1,7 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../FireBase/firebase.init";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 
 const Register = () => {
@@ -28,14 +29,14 @@ const Register = () => {
             return;
         }
 
-        if(!terms){ setErrorMessage('Please Accept Our Terms and Condition');return}
+        if (!terms) { setErrorMessage('Please Accept Our Terms and Condition'); return }
 
         // validating password
 
-        if (!regex.test(password)) {
-            setErrorMessage('password should contain at least 1 upper and 1 lower and 1 number and 1 special chars');
-            return;
-        }
+        // if (!regex.test(password)) {
+        //     setErrorMessage('password should contain at least 1 upper and 1 lower and 1 number and 1 special chars');
+        //     return;
+        // }
 
         createUserWithEmailAndPassword(auth, email, password)
 
@@ -93,13 +94,16 @@ const Register = () => {
                             </div>
                         </form>
 
+                        <p className="text-white mx-6 mb-2"> Already Have an Account ?  <Link to="/login" className="underline text-blue-300"> Login</Link> </p>
+
                         {
                             errorMessage && <p className="text-sm m-4 text-red-500">{errorMessage}</p>
                         }
 
                         {
-                            success && <p className="text-sm m-4 text-green-500">Log In Successful</p>
+                            success && <p className="text-sm m-4 text-green-500">Sign Up Successful</p>
                         }
+
                     </div>
                 </div>
 
