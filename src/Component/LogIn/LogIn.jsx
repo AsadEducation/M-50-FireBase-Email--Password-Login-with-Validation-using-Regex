@@ -1,6 +1,6 @@
 
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { useState } from "react";
+import { sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
+import { useRef, useState } from "react";
 import { VscEye } from "react-icons/vsc";
 import { VscEyeClosed } from "react-icons/vsc";
 import { auth } from "../FireBase/firebase.init";
@@ -10,7 +10,13 @@ const LogIn = () => {
 
     const [success, setSuccess] = useState(false);
 
-    const [errorMessage, setErrorMessage]= useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const [consumer, setConsumer] = useState(null);
+
+    const emailRef = useRef();
+
+
 
 
     const handleFormClicked = (event) => {
@@ -18,16 +24,26 @@ const LogIn = () => {
         const email = event.target.email.value;
         const password = event.target.password.value;
 
-        signInWithEmailAndPassword(auth,email,password)
-        .then((result)=>{
-            console.log(result.user);
-            setSuccess(true);
-        })
-        .catch((error)=>{
-            console.log(error);
-            setErrorMessage('Invalid Email or Password');
-        })
+        signInWithEmailAndPassword(auth, email, password)
+            .then((result) => {
+                console.log(result.user);
+                setSuccess(true);
+                setConsumer(result.user);
+            })
+            .catch((error) => {
+                console.log(error);
+                setErrorMessage('Invalid Email or Password');
+            })
 
+    }
+
+    const handleForgotPass = () => {
+        const email = emailRef.current.value;
+
+        sendPasswordResetEmail(auth, email)
+            .then((result) => {
+                alert('Password Reset Email Sent , Please Check Your Email');
+            })
     }
 
     return (
@@ -46,14 +62,14 @@ const LogIn = () => {
                                 <label className="label">
                                     <span className="label-text">Email</span>
                                 </label>
-                                <input type="email" name="email" placeholder="email" className="input input-bordered" required />
+                                <input type="email" name="email" ref={emailRef} placeholder="email" className="input input-bordered" required />
                             </div>
                             <div className="form-control">
                                 <label className="label">
                                     <span className="label-text">Password</span>
                                 </label>
                                 <input type="password" name="password" placeholder="password" className="input input-bordered" required />
-                                <label className="label">
+                                <label onClick={handleForgotPass} className="label">
                                     <a href="#" className="label-text-alt link link-hover">Forgot password?</a>
                                 </label>
                             </div>
@@ -61,14 +77,20 @@ const LogIn = () => {
                                 <button className="btn btn-primary">Login</button>
                             </div>
                             {
-                                success? <p className="text-green-500">Log in Successful </p>: <p className="text-red-500">{errorMessage}</p>
+                                success ? <p className="text-green-500">Log in Successful </p> : <p className="text-red-500">{errorMessage}</p>
                             }
                         </form>
                         <p className="text-white m-4">New To This Website? Please <Link to="/register" className="underline text-blue-300"> SignUp</Link> </p>
                     </div>
                 </div>
             </div>
-
+            {
+                consumer && <div>
+                    <h2>name: {consumer.displayName}</h2>
+                    <p>Email:{consumer.email}</p>
+                    <img className="w-[800px] h-[800px]" src={consumer.photoURL} alt="" />
+                </div>
+            }
         </div>
     );
 };

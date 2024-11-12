@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import { auth } from "../FireBase/firebase.init";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -20,9 +20,18 @@ const Register = () => {
         event.preventDefault();
         const email = event.target.email.value;
         const password = event.target.password.value;
+        const name = event.target.name.value;
+        const photo = event.target.photo.value;
+
+        console.log(name,photo);
+
+        const profile = {
+            displayName:name,
+            photoURL:photo,
+        }
 
         const terms = event.target.terms.checked;
-        console.log(terms);
+        // console.log(terms);
 
         if (password.length < 6) {
             setErrorMessage('Password Length Should be 6 character long');
@@ -42,6 +51,18 @@ const Register = () => {
 
             .then((result) => {
                 setSuccess(true);
+                sendEmailVerification(auth.currentUser)
+                    .then(() => {
+                        // console.log('Verification email sent');
+                    })
+
+                updateProfile(auth.currentUser,profile)
+                .then(()=>{
+                    console.log('current user updated');
+                })
+                .catch((error)=>{
+                    console.log('error happend while updating user');
+                })
             })
             .catch((error) => {
                 setErrorMessage(error.message);
@@ -61,6 +82,27 @@ const Register = () => {
                     </div>
                     <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
                         <form onSubmit={handleLogInForm} className="card-body">
+
+                            {/* name for user  */}
+
+                            <div className="form-control">
+                                <label className="label">
+                                    <span className="label-text">Name</span>
+                                </label>
+                                <input type="text" name="name" placeholder="name" className="input input-bordered" required />
+                            </div>
+
+                            {/* photo of user  */}
+
+                            <div className="form-control">
+                                <label className="label">
+                                    <span className="label-text">Photo</span>
+                                </label>
+                                <input type="text" name="photo" placeholder="photo" className="input input-bordered" required />
+                            </div>
+
+                            
+
                             <div className="form-control">
                                 <label className="label">
                                     <span className="label-text">Email</span>
@@ -72,9 +114,9 @@ const Register = () => {
                                     <span className="label-text">Password</span>
                                 </label>
                                 <input type="password" name="password" placeholder="password" className="input input-bordered" required />
-                                <label className="label">
+                                {/* <label className="label">
                                     <a href="#" className="label-text-alt link link-hover ">Forgot password?</a>
-                                </label>
+                                </label> */}
                             </div>
                             <div className="form-control mt-6">
                                 {/* checkbox from daisy ui  */}
